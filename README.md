@@ -1,5 +1,6 @@
 <h1 align="center">Theory Radar</h1>
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20660206.svg)](https://doi.org/10.5281/zenodo.20660206)
 <p align="center">
   <em>Do you need a black box, or would a formula suffice?</em>
 </p>
