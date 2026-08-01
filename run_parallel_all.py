@@ -81,7 +81,9 @@ import paramiko
 
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect("100.68.134.21", username="claude", password="roZes9090!~")
+# Never hardcode this. The repo is public and a previously hardcoded copy had to
+# be rotated. Export ATLAS_PASS from your secret store before running.
+ssh.connect("100.68.134.21", username="claude", password=os.environ["ATLAS_PASS"])
 
 sftp = ssh.open_sftp()
 sftp.put("/tmp/run_one_dataset.py", "/home/claude/tensor-3body/run_one_dataset.py")

@@ -1,9 +1,15 @@
-"""Deploy depth-7 GPU pilot to Atlas via paramiko."""
+"""Deploy depth-7 GPU pilot to Atlas via paramiko.
+
+Set ATLAS_PASS in the environment before running. It is deliberately not stored
+here: this repo is public, and a previously hardcoded copy had to be rotated.
+"""
+import os
+
 import paramiko
 
 c = paramiko.SSHClient()
 c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-c.connect('100.68.134.21', username='claude', password='roZes9090!~')
+c.connect('100.68.134.21', username='claude', password=os.environ['ATLAS_PASS'])
 sftp = c.open_sftp()
 
 # 1. Dataset loader (standalone, no CLI arg parsing)
