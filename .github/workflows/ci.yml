@@ -14,7 +14,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install ruff
+      # Pinned deliberately. Unpinned, this installed whatever ruff was newest,
+      # so a ruff release could turn a green master red with no repo change. That
+      # is what happened between 2026-04-20 and 2026-08-01: newer ruff promoted
+      # additional rules (BLE001, RUF022, RUF059) and the next push to master
+      # failed on pre-existing src/ code. Bump this on purpose, with the findings
+      # fixed in the same commit.
+      - run: pip install ruff==0.14.8
       - name: Lint with ruff
         run: ruff check src/ tests/
       - name: Check formatting with ruff
