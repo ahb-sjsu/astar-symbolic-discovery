@@ -52,24 +52,32 @@ search is empirical).  The benchmark results below use the unpruned
 beam search; pruning is evaluated separately as a search-efficiency
 contribution.
 
-On 9 of 31 datasets (29\%), the formula beats default
-gradient boosting: Liver ($\Delta F_1 = {+}0.159$), Haberman
-($\Delta F_1 = {+}0.175$), Transfusion ($\Delta F_1 = {+}0.118$),
-Vertebral ($\Delta F_1 = {+}0.060$), Diabetes
-($\Delta F_1 = {+}0.032$), Wine ($\Delta F_1 = {+}0.035$), Heart
-($\Delta F_1 = {+}0.028$), Hepatitis ($\Delta F_1 = {+}0.021$),
-and Breast~Cancer ($\Delta F_1 = {+}0.006$).  Three datasets are
-statistical ties, and 19 are ensemble wins.  Winning datasets share
-a common profile: moderate sample size ($N \leq 800$), a
-discriminative subspace captured by 2--3 PLS components, and
-medical/clinical provenance.  We report all results honestly,
-including the 19 losses, and provide PLS loading analyses showing
+On the discovery benchmark the formula beats default gradient
+boosting on 9 of 31 datasets on point estimates; under the
+Nadeau--Bengio correction for repeated-CV dependence, three of
+those wins remain individually resolvable: Haberman
+($\Delta F_1 = {+}0.175$), Liver ($+0.159$), and Transfusion
+($+0.118$).  All three survive a tuned baseline and a fully
+symmetric scoring protocol.  A \emph{pre-registered confirmatory
+study} on 26 fresh OpenML datasets---selection criteria, bars, and
+analysis frozen before any data were scored---replicates the effect
+out of sample: the formula wins the sign test (19/26,
+$p = 0.014$), with ten individually significant wins up to
+$\Delta F_1 = {+}0.22$.  Two pre-registered probes then bound what
+the effect \emph{is}: a threshold-free AUC comparison flips sign
+(mean ${-}0.017$), showing the advantage lies in operating-point
+selection rather than ranking quality, and the
+small-$N$/low-$d$ ``regime'' observed in the discovery set fails
+to replicate ($\rho(\log_2 N, \Delta F_1) = {+}0.12$ out of
+sample).  We report all results honestly, including the 19
+discovery-set losses, and provide PLS loading analyses showing
 that winning formulas map to domain-interpretable feature
-combinations.  Depth experiments to depth~9 with 5$\times$-wider
-beams confirm that depth~3 provides the best generalization on
-29 of 31 datasets.
+combinations.
 
 Code: available upon acceptance (anonymous review).
+Review artifacts (pre-registrations, frozen candidate list,
+fold-level results, verdict-recomputing scripts):
+\url{https://github.com/ahb-sjsu/theory-radar-review}.
 \end{abstract}
 
 % ================================================================
@@ -104,9 +112,11 @@ candidates under the same cross-validation protocol used for
 baselines, and reports the outcome---win, tie, or loss---honestly
 for every dataset.  The tool is designed around three principles:
 (i)~\emph{bounded search} (the formula space is finite and
-well-defined), (ii)~\emph{fair evaluation} (formulas and baselines
-are scored on identical train/test splits with no methodological
-asymmetry), and (iii)~\emph{honest reporting} (losses are reported
+well-defined), (ii)~\emph{fair evaluation} (formulas and baselines are scored on
+identical train/test splits; a residual scoring asymmetry in the
+discovery protocol---threshold fitting for the formula arm
+only---was identified post hoc, quantified, and removed in the
+confirmatory protocol of Sec.~\ref{sec:confirmatory}), and (iii)~\emph{honest reporting} (losses are reported
 alongside wins, with effect sizes and confidence intervals for all
 31 datasets).  We then analyze \emph{when} formulas win and
 \emph{why}, grounding the analysis in PLS loading vectors that make
@@ -115,12 +125,16 @@ the formulas domain-interpretable.
 Our contributions are:
 \begin{enumerate}
 \item A \textbf{31-dataset benchmark} with a unified evaluation
-protocol ($200 \times 5$-fold CV, three baselines, effect-size
-statistical reporting) that identifies 9 datasets where
-depth-3 formulas beat default gradient boosting, 3 ties, and 19 losses.
-\item A \textbf{characterization of the interpretability decision
-boundary}: formulas win on moderate-$N$, medical/clinical
-datasets whose discriminative subspace is low-dimensional.
+protocol ($200 \times 5$-fold CV, three baselines,
+dependence-corrected inference) on which three formula wins are
+individually resolvable under the Nadeau--Bengio correction and
+survive both baseline tuning and a symmetric scoring protocol.
+\item A \textbf{pre-registered confirmatory study}
+(Sec.~\ref{sec:confirmatory}): on 26 fresh datasets selected
+blind, the formula wins the sign test ($19/26$, $p = 0.014$; ten
+individually significant wins), while threshold-free scoring
+flips the aggregate sign---locating the advantage in
+operating-point selection, not ranking.
 \item A \textbf{meta-learned pruning} technique that discovers
 safe pruning rules from exhaustive micro-search, pruning
 88--99.6\% of dead subtrees with zero false negatives
@@ -537,23 +551,27 @@ split with the threshold tuned on training data only;
 (4)~$F_1$ is computed on test predictions.
 
 \textbf{Statistical framework.}
-Because repeated CV produces correlated fold-level measurements,
-we report all comparisons as mean $\Delta F_1$ with 95\% confidence
-intervals computed from the 1{,}000 paired differences.  We
-categorize outcomes as \emph{win} (formula mean $F_1$ exceeds GB
-mean $F_1$ with 95\% CI entirely above zero), \emph{tie} (CI
-includes zero or $|\Delta F_1| < 0.005$), or \emph{loss}
-(GB mean $F_1$ exceeds formula mean $F_1$ with 95\% CI entirely
-below zero).  Because repeated CV folds share training data,
-the 1{,}000 differences are not fully independent.  The
+Repeated CV produces correlated fold-level measurements: the
+1{,}000 paired differences share training data and are far from
+independent.  Our primary inference therefore uses the
 Nadeau--Bengio corrected resampled
-$t$-test~\cite{nadeau2003inference} is the appropriate framework
-for accounting for this correlation.  We report standard 95\%
-intervals from the paired differences as descriptive
-repeated-CV effect-size summaries, not strict frequentist
-confidence intervals.  Readers should interpret the intervals
-as characterizing the magnitude and consistency of the
-performance gap rather than as formal hypothesis tests.
+$t$-test~\cite{nadeau2003inference}, with
+$\rho = n_{\mathrm{test}}/n_{\mathrm{train}} = 1/4$ at 5-fold
+CV.  The correction inflates the naive variance by a factor of
+$\approx 251$ at 1{,}000 folds; a direct measurement of the
+dependence structure on independent subsample replicates (reported
+in the confirmatory study's companion analysis) finds the
+heuristic mildly conservative, supporting its use.  Under this
+correction, three of the nine point-estimate wins in
+Table~\ref{tab:full} remain individually resolvable: Haberman,
+Liver, and Transfusion.  The per-dataset intervals printed in
+Table~\ref{tab:full} are computed from the raw paired differences
+and are \emph{descriptive effect-size summaries only}; they are
+roughly $16\times$ too narrow to be read as hypothesis tests, and
+outcome labels in the table follow the descriptive rule for
+continuity with the point estimates.  Wherever this paper asserts
+statistical significance, the Nadeau--Bengio correction is in
+force.
 
 \subsection{Results}
 \label{sec:results}
@@ -567,9 +585,10 @@ on 19 (61\%).
 $200 \times 5$-fold CV (1{,}000 measurements) vs.\ default
 scikit-learn Gradient Boosting
 (GB).  $\Delta F_1$: formula minus GB (positive = formula better).
-95\% CI from 1{,}000 paired differences.  Outcomes classified as
-win ($\Delta F_1 > 0$, CI above zero), tie (CI includes zero or $|\Delta F_1| < 0.005$),
-or loss ($\Delta F_1 < 0$, CI below zero).}
+95\% CI from 1{,}000 paired differences (descriptive only; see
+Sec.~\ref{sec:methodology}).  Outcome labels follow the
+descriptive rule; under Nadeau--Bengio inference only Haberman,
+Liver, and Transfusion are individually resolvable wins.}
 \label{tab:full}
 \scriptsize
 \begin{tabular}{@{}lrrlccrcl@{}}
@@ -659,10 +678,12 @@ datasets from ensemble-dominated ones (Fig.~\ref{fig:scatter}).
   \draw[dashed, gray, thick] (3.2,0) -- (3.2,7);
   \node[gray, rotate=90] at (3.5,3.5) {\scriptsize $N{\approx}800$};
 \end{tikzpicture}
-\caption{Win/loss scatter: sample size ($N$, log scale) vs.\
-dimensionality ($d$).  Formula wins (green circles) cluster
-at $N \leq 800$; all datasets with $N > 1{,}000$ are ensemble
-wins or ties.}
+\caption{Win/loss scatter on the \emph{discovery} benchmark:
+sample size ($N$, log scale) vs.\ dimensionality ($d$).  Formula
+wins (green circles) cluster at $N \leq 800$ in this collection.
+This pattern is descriptive of the discovery set only: it did not
+replicate out of sample (Sec.~\ref{sec:confirmatory}), and we no
+longer advance it as a regime claim.}
 \label{fig:scatter}
 \end{figure}
 
@@ -747,16 +768,20 @@ components, but the compression introduces enough information loss
 that the formula advantage is marginal.
 
 \textbf{Distinguishing clear wins from narrow wins.}
-The nine formula wins span a wide range of effect sizes.  Liver
+The nine point-estimate wins span a wide range of effect sizes,
+and subsequent analysis resolved the question the margins raise.
+Under Nadeau--Bengio inference, only Liver
 ($\Delta F_1 = +0.159$), Haberman ($+0.175$), and Transfusion
-($+0.118$) are clear, large-margin wins where the formula
-substantially outperforms gradient boosting.  Breast~Cancer
-($+0.006$) and Hepatitis ($+0.021$) are narrow but consistent
-wins---statistically significant across 1{,}000 folds but small
-enough that hyperparameter tuning of the baseline could potentially
-close the gap.  We report all nine under the same protocol for
-completeness, but readers should weight the large-margin wins more
-heavily when assessing practical significance.
+($+0.118$) are individually resolvable; the six narrow wins are
+statistically indistinguishable from ties at the corrected
+standard error.  A tuned-baseline experiment (random search, 20
+candidates, nested on the training folds) confirmed the same
+split empirically: tuning erased Heart on point estimates, reduced
+Wine and Breast~Cancer to within rounding, and left the three
+large-margin wins essentially untouched
+($-0.000$, $+0.012$, $+0.007$ erosion respectively).  Readers
+should treat the three large-margin wins as the benchmark's
+defensible individual results.
 
 \textbf{The $N/d$ ratio pattern.}
 Among formula wins, the $N/d$ ratio ranges from 18.3 (Hepatitis)
@@ -785,9 +810,15 @@ HIGGS ($N = 98{,}050$, $-0.033$).  With abundant data, gradient
 boosting can learn arbitrarily complex feature interactions through
 hundreds of weak learners, each splitting on a different feature
 combination.  A depth-3 formula, constrained to three terms, cannot
-match this representational capacity.  The monotonic relationship
-between $N$ and ensemble advantage is one of the clearest findings
-of the benchmark.
+match this representational capacity.  Within-dataset learning
+curves on ten large datasets confirm a real size effect
+(the formula's relative advantage falls by ${\approx}0.016\ F_1$
+per doubling of $n$, $t = -4.8$ with dataset intercepts), but the
+crossing point varies by two orders of magnitude across datasets,
+and the between-dataset correlation did not replicate out of
+sample (Sec.~\ref{sec:confirmatory}); we therefore report the
+size effect as within-dataset and dataset-specific, not as a
+universal threshold.
 
 \textbf{High $d$ with low $N/d$ also hurts.}
 Sonar ($d = 60$, $N/d = 3.5$) and Cylinder ($d = 38$, $N/d = 14.2$)
@@ -797,6 +828,83 @@ matrix $\mathbf{X}^\top \mathbf{y}$ is poorly estimated, and the
 resulting projections are noisy.  Gradient boosting handles this
 regime better because it can select relevant features through
 iterative split selection without estimating a global projection.
+
+\subsection{Pre-Registered Confirmatory Study}
+\label{sec:confirmatory}
+
+Because the win/loss patterns above were observed in the same data
+used to characterize them, we conducted a pre-registered
+confirmatory study.  The registration---selection criteria,
+numerical bars, and analysis plan---was committed before any
+candidate dataset was scored, and the candidate list was frozen by
+a separate commit before the first run.
+All registrations, the frozen list, fold-level results, and scripts
+that recompute every verdict in this section are public
+(\url{https://github.com/ahb-sjsu/theory-radar-review}).
+
+\textbf{Protocol symmetry.}  The discovery protocol contained a
+scoring asymmetry: the formula arm's decision threshold was fitted
+on the training fold, while baselines used the default 0.5 cut.
+Measured on the three large wins, this asymmetry was worth
+${+}0.037$ (Haberman), ${+}0.056$ (Transfusion), and ${+}0.032$
+(Liver) of $\Delta F_1$.  The confirmatory protocol removes it:
+both arms receive identical training-fold threshold optimization,
+applied to \texttt{predict\_proba} for the baselines.  A
+threshold-free ROC--AUC comparison is reported alongside as a
+secondary protocol.
+
+\textbf{Design.}  Candidates were drawn blind from OpenML: binary,
+tabular, $150 \leq N \leq 800$, $d \leq 10$, at least 20
+minority instances, excluding the 31 discovery datasets and their
+variants and all synthetic or time-series data, sorted by ascending
+OpenML id.  The pool was exhausted at 26 candidates (30 were
+registered; no post-hoc replacement was permitted).  Two frozen
+datasets were later found label-degenerate (\texttt{mu284} leaks
+its target as a feature; \texttt{iris} is trivially separable);
+per the registration they remain in the primary count and are
+excluded in a declared sensitivity.  Five census near-duplicates
+constitute one dataset family; a family-collapsed count was
+declared alongside.  Gate: the three discovery wins re-scored
+under the symmetric protocol (C0) must remain wins, else no
+confirmatory result counts.
+
+\textbf{Results.}  C0 passed: Haberman ${+}0.148$
+$[{+}0.049, {+}0.246]$, Liver ${+}0.124$ $[{+}0.052, {+}0.196]$,
+Transfusion ${+}0.057$ $[{+}0.000, {+}0.114]$ (Nadeau--Bengio 95\%
+intervals; $\rho = 1/9$ at the registered 10-fold CV).  On the 26
+fresh datasets the formula won 19 ($p = 0.014$, one-sided exact
+binomial against $1/2$); excluding the two degenerate datasets,
+18/24 ($p = 0.011$); collapsed to one vote per family, 12/18
+($p = 0.12$)---the direction replicates, while the count's
+significance depends on the independence accounting, and we report
+all three declared views.  Ten candidates were individually
+significant with $\Delta F_1 \geq 0.05$ (largest ${+}0.221$),
+though five of the ten belong to a single census family and eight
+derive from binarized regression sources---the confirmatory
+population, drawn by the registered filters, consists largely of
+binarized regression tasks with near-balanced classes rather than
+the clinical datasets of the discovery benchmark.
+
+\textbf{What the effect is, and is not.}  Two pre-registered
+probes bound the interpretation.  First, the discovery-set size
+pattern \emph{failed to replicate}:
+$\rho(\log_2 N, \Delta F_1) = {+}0.12$ (wrong sign) and
+$\rho(\log_2 d, \Delta F_1) = {-}0.14$ ($p = 0.50$) on the
+fresh datasets.  Together with within-dataset learning curves
+whose crossing points span two orders of magnitude, and a
+synthetic capacity experiment in which \emph{reducing} GB depth
+widened rather than narrowed the formula's advantage, we withdraw
+the small-$N$/low-$d$ regime claim.  Second, under the
+threshold-free AUC protocol the aggregate sign flips: mean
+$\Delta F_1 = {+}0.053$ but mean $\Delta\mathrm{AUC} =
+{-}0.017$.  The formula does not rank test instances better than
+gradient boosting; its advantage arises in the selection of an
+$F_1$-optimal operating point on near-balanced tasks, where the
+formula-plus-fitted-threshold pipeline is more effective than
+thresholding a boosted ensemble's probabilities.  We regard this
+threshold-mediated characterization, together with the three
+clinical wins whose mechanism remains open, as the accurate
+statement of the method's strength.
 
 \subsection{Formula Interpretation}
 \label{sec:interpretation}
@@ -1079,19 +1187,17 @@ addressed.  The three-term constraint is both the method's strength
 (inability to represent complex decision boundaries).
 
 \textbf{Default baseline hyperparameters.}
-The benchmark uses scikit-learn baselines with default
-hyperparameters.  Tuned ensembles---with optimized learning rate,
-tree depth, subsampling, and regularization---may close the gap on
-some winning datasets.  On Breast Cancer ($\Delta F_1 = +0.006$)
-and Hepatitis ($+0.021$), even modest tuning could plausibly
-eliminate the formula advantage.  On Liver ($\Delta F_1 = +0.159$)
-and Haberman ($+0.175$), the margins are large enough to be robust
-to reasonable tuning, but this has not been verified experimentally.
-We chose default hyperparameters for reproducibility and because
-they represent the ``out-of-the-box'' experience that most
-practitioners encounter; a fair comparison with tuned baselines
-would require a hyperparameter search protocol (e.g., Bayesian
-optimization with nested CV), which we leave to future work.
+The headline benchmark uses scikit-learn defaults.  This
+limitation has since been quantified: a random-search tuning
+experiment (20 candidates, inner 3-fold on training data only,
+all 31 datasets) erased Heart on point estimates, reduced Wine
+and Breast~Cancer to within rounding, and left the three
+large-margin wins essentially untouched; tuning gains showed no
+correlation with the win pattern
+($\rho = -0.03$, $p = 0.89$), refuting the hypothesis that the
+wins mark datasets where default GB is merely misconfigured.
+Default results remain the headline for reproducibility; the
+tuned comparison bounds their fragility.
 
 \textbf{Meta-search scalability.}
 Exhaustive enumeration for meta-search ground truth scales as
@@ -1147,23 +1253,29 @@ ensemble for binary classification?}  Across 31 UCI/OpenML
 benchmarks with unified $200 \times 5$-fold evaluation:
 
 \begin{itemize}
-\item On 9 datasets (29\%), a depth-3 formula \emph{outperforms}
-gradient boosting, with $\Delta F_1$ ranging from $+0.006$
-(Breast Cancer) to $+0.175$ (Haberman).  PLS projections are the
-key enabler; medical/clinical datasets with moderate sample sizes
-are the primary beneficiaries.
-\item On 3 datasets (10\%), the formula ties the ensemble.
-\item On 19 datasets (61\%), ensembles win, and the method
-quantifies the gap honestly.
+\item On the discovery benchmark, three wins are individually
+resolvable under dependence-corrected inference---Haberman
+($+0.175$), Liver ($+0.159$), Transfusion ($+0.118$)---and all
+three survive baseline tuning and a symmetric scoring protocol.
+\item A pre-registered confirmatory study on 26 fresh datasets
+replicates the effect out of sample: 19/26 wins ($p = 0.014$),
+ten individually significant with effects up to $+0.22$.
+\item On 19 discovery datasets (61\%), ensembles win, and the
+method quantifies the gap honestly.
 \end{itemize}
 
-The winning datasets share a common profile: moderate $N$
-($\leq 800$), a discriminative subspace captured by 2--3 PLS
-components with stable, interpretable loading vectors, and
-decision boundaries that are approximately linear in the projected
-space.  PLS loading analysis confirms that winning formulas map to
-clinically meaningful feature combinations (glucose/insulin/BMI
-for Diabetes, cell-geometry features for Breast Cancer).
+Two pre-registered probes locate the effect precisely.  The
+small-$N$/low-$d$ pattern visible in the discovery set is
+withdrawn as a regime claim: it failed to replicate out of sample,
+within-dataset crossing points vary by two orders of magnitude,
+and reducing ensemble capacity widens rather than narrows the
+formula's advantage.  Under threshold-free scoring the aggregate
+sign flips ($\Delta\mathrm{AUC} = -0.017$): the method's
+advantage is \emph{operating-point selection}---the
+formula-plus-fitted-threshold pipeline finds better $F_1$ cuts on
+near-balanced tasks---rather than superior ranking.  PLS loading
+analysis confirms that winning formulas map to clinically
+meaningful feature combinations.
 
 Depth experiments through depth~9 with 5$\times$-wider beams confirm
 that depth~3 provides the best generalization on 29 of 31 datasets.

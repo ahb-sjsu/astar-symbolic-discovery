@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software in academic work, please cite via the Zenodo DOI below."
+title: "theory-radar: Tensor rank as a predictor of dynamical tractability, with A* over decompositions"
+authors:
+  - family-names: Bond
+    given-names: Andrew H.
+    email: andrew.bond@sjsu.edu
+    affiliation: "San Jose State University"
+    orcid: "https://orcid.org/0009-0009-1769-5099"
+type: software
+version: "0.4.0"
+date-released: "2026-06-12"
+license: MIT
+repository-code: "https://github.com/ahb-sjsu/theory-radar"
+url: "https://github.com/ahb-sjsu/theory-radar"
+doi: "10.5281/zenodo.20660206"
+identifiers:
+  - description: "This specific release (v0.4.0)"
+    type: doi
+    value: "10.5281/zenodo.20660207"
+  - description: "Concept DOI (always resolves to the latest release)"
+    type: doi
+    value: "10.5281/zenodo.20660206"
