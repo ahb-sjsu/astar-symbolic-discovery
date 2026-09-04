@@ -763,7 +763,11 @@ class TheoryRadar:
                         if auroc_prune is not None and ca < auroc_prune:
                             pruned_auroc += 1
                             continue
-                        if youden_prune and max_f1_for_youden(max_youden_index(cv, actual), self.prevalence) < best_f1:
+                        if (
+                            youden_prune
+                            and max_f1_for_youden(max_youden_index(cv, actual), self.prevalence)
+                            < best_f1
+                        ):
                             pruned_youden += 1
                             continue
 
@@ -812,7 +816,11 @@ class TheoryRadar:
                         if auroc_prune is not None and ca < auroc_prune:
                             pruned_auroc += 1
                             continue
-                        if youden_prune and max_f1_for_youden(max_youden_index(cv, actual), self.prevalence) < best_f1:
+                        if (
+                            youden_prune
+                            and max_f1_for_youden(max_youden_index(cv, actual), self.prevalence)
+                            < best_f1
+                        ):
                             pruned_youden += 1
                             continue
                         cf = exact_optimal_f1(cv, actual)

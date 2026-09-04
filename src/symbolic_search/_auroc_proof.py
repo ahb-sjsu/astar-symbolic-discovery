@@ -127,7 +127,8 @@ def max_f1_for_auroc(auroc: float, prevalence: float, n_points: int = 1000) -> f
 
 
 def max_youden_index(values: np.ndarray, actual: np.ndarray) -> float:
-    """Measured maximum Youden index max_t (TPR(t) - FPR(t)) of a score.
+    """Measured maximum Youden index of a score over thresholds and both threshold
+    directions, so that it bounds an F1 sweep that may threshold either way.
 
     O(N log N), the same sort AUROC needs. Holds for every score; no concavity
     assumption. Ties are handled by sweeping distinct score values.
@@ -146,8 +147,9 @@ def max_youden_index(values: np.ndarray, actual: np.ndarray) -> float:
     # only evaluate at the last index of each run of equal scores
     last = np.ones(len(v), dtype=bool)
     last[:-1] = v[:-1] != v[1:]
-    j = tp[last] / n_pos - fp[last] / n_neg
-    return float(max(0.0, j.max()))
+    j_desc = tp[last] / n_pos - fp[last] / n_neg  # thresholding high scores as positive
+    j_asc = fp[last] / n_neg - tp[last] / n_pos  # thresholding low scores as positive
+    return float(max(0.0, j_desc.max(), j_asc.max()))
 
 
 def max_f1_for_youden(youden: float, prevalence: float, n_points: int = 200) -> float:

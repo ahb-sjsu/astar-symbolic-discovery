@@ -48,7 +48,7 @@ def auroc_f1_bound(auroc: float, prevalence: float) -> float:
 
 
 def max_youden_index(values: np.ndarray, actual: np.ndarray) -> float:
-    """Measured maximum Youden index max_t (TPR - FPR); O(N log N), no assumptions."""
+    """Measured maximum Youden index over thresholds and both directions; O(N log N), no assumptions."""
     values = np.asarray(values, dtype=float)
     y = np.asarray(actual).astype(bool)
     n_pos, n_neg = int(y.sum()), int((~y).sum())
@@ -59,7 +59,9 @@ def max_youden_index(values: np.ndarray, actual: np.ndarray) -> float:
     tp, fp = np.cumsum(ys), np.cumsum(~ys)
     last = np.ones(len(v), dtype=bool)
     last[:-1] = v[:-1] != v[1:]
-    return float(max(0.0, (tp[last] / n_pos - fp[last] / n_neg).max()))
+    j_desc = tp[last] / n_pos - fp[last] / n_neg
+    j_asc = fp[last] / n_neg - tp[last] / n_pos  # the other threshold direction
+    return float(max(0.0, j_desc.max(), j_asc.max()))
 
 
 def youden_f1_bound(youden: float, prevalence: float, n_points: int = 200) -> float:
