@@ -155,23 +155,40 @@ probability is unchanged.
 
 \begin{theorem}[AUROC-F1 Bound]
 \label{thm:auroc_f1}
-For a binary classifier with $\mathrm{AUROC} = A$ and class
-prevalence $\pi$, the maximum achievable thresholded F1 satisfies:
+For a binary classifier with $\mathrm{AUROC} = A$, class
+prevalence $\pi$, and a \emph{concave} ROC curve (equivalently, a score
+whose likelihood ratio is monotone), the maximum achievable thresholded
+F1 satisfies:
 \[
 F_1^{\max} \leq \sup_{\substack{t \in [J, 1] \\ J = 2A-1}}
 \frac{2 t \pi}{t \pi + \pi + (t - J)(1 - \pi)}
 \]
-where $J = 2A - 1$ is the maximum Youden index for any ROC curve
-with area $A$.
+where $J = 2A - 1$ bounds the maximum Youden index of a concave ROC
+curve with area $A$.
 \end{theorem}
 
 \begin{proof}
-Any ROC curve with area $A$ has maximum Youden index $J = \max(TPR
-- FPR) \leq 2A - 1$, with equality for the step-function ROC curve
-(this is a standard result). At any operating point
+Let $(f^\star, t^\star)$ be the operating point attaining the maximum
+Youden index $J = t^\star - f^\star$. A concave ROC curve lies above the
+chords from $(0,0)$ to $(f^\star,t^\star)$ and from $(f^\star,t^\star)$ to
+$(1,1)$, whose region has area $(1+J)/2$, so $A \ge (1+J)/2$ and $J \le
+2A-1$. At any operating point
 $(FPR, TPR)$ with $TPR - FPR = J$, we substitute $FPR = TPR - J$
 into the F1 expression and maximize over $TPR \in [J, 1]$.
 \end{proof}
+
+\begin{remark}[Correction, 2026-09-03]
+An earlier version of this theorem omitted the concavity hypothesis and
+asserted $J \le 2A-1$ for every ROC curve. That is false. A score that
+ranks three quarters of the positives above every negative and the rest
+below every negative has $A = 0.75$ and $J = 0.75$, and at $\pi = 1/2$
+reaches $F_1 = 0.857$, above the $0.80$ the AUROC form allows. The bound
+that holds for every score substitutes the measured maximum Youden index
+$J = \max_\tau(TPR-FPR)$ for $2A-1$; it costs the same sort as AUROC, and
+the released code now prunes with it. Searches run under the AUROC form
+could have pruned a non-concave candidate wrongly, so their reported best
+formulas are lower bounds on an unpruned search. See \texttt{ERRATA.md}.
+\end{remark}
 
 This bound is \emph{tight}: it is achieved by the step-function ROC
 curve. Table~\ref{tab:bounds} shows bounds for specific datasets.

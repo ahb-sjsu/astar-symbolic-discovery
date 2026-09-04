@@ -67,7 +67,12 @@ def auroc_safe(values: NDArray, actual: NDArray) -> float:
 
 
 def max_f1_for_auroc(auroc: float, prevalence: float) -> float:
-    """Proven upper bound on F1 given AUROC (Theorem 3)."""
+    """Upper bound on F1 given AUROC (Theorem 3), valid for CONCAVE ROC curves only.
+
+    For a non-concave curve the Youden index can exceed 2A - 1 and this bound can
+    sit below the achievable F1 (ERRATA.md, 2026-09-03). Prefer max_f1_for_youden
+    with the measured index, which holds for every score.
+    """
     if auroc <= 0.5:
         return 2 * prevalence
     J = 2 * auroc - 1
@@ -99,16 +104,38 @@ class H1_TargetCheck:
         return 0 if f1 >= self.target else 1
 
 
+def max_f1_for_youden(youden: float, prevalence: float) -> float:
+    """Upper bound on F1 from the measured maximum Youden index; holds for every score."""
+    J = float(min(max(youden, 0.0), 1.0))
+    best = 0.0
+    for tpr in np.linspace(max(0.01, J), 1.0, 200):
+        fpr = tpr - J
+        if fpr < 0 or fpr > 1:
+            continue
+        prec = tpr * prevalence / (tpr * prevalence + fpr * (1 - prevalence) + 1e-30)
+        if prec + tpr > 0:
+            best = max(best, 2 * prec * tpr / (prec + tpr))
+    return best
+
+
 class H2_AUROCBound:
-    """h₂: 0 if AUROC-F1 bound ≥ target, 1 otherwise. O(N log N)."""
+    """h₂: 0 if the F1 ceiling ≥ target, 1 otherwise. O(N log N).
+
+    When the caller passes the measured Youden index as `youden`, the ceiling is
+    max_f1_for_youden and the heuristic is admissible for every score. With only
+    `auroc` it falls back to max_f1_for_auroc, admissible for concave ROC curves
+    only (ERRATA.md, 2026-09-03)."""
 
     def __init__(self, target: float, prevalence: float):
         self.target = target
         self.prevalence = prevalence
         self.name = "H2_auroc"
 
-    def __call__(self, f1: float, auroc: float = 0.5, **kwargs) -> int:
-        bound = max_f1_for_auroc(auroc, self.prevalence)
+    def __call__(self, f1: float, auroc: float = 0.5, youden: float | None = None, **kwargs) -> int:
+        if youden is not None:
+            bound = max_f1_for_youden(youden, self.prevalence)
+        else:
+            bound = max_f1_for_auroc(auroc, self.prevalence)
         return 0 if bound >= self.target else 1
 
 

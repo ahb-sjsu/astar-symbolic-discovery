@@ -40,20 +40,45 @@ log = logging.getLogger(__name__)
 
 
 def auroc_f1_bound(auroc: float, prevalence: float) -> float:
-    """Upper bound on F1 given AUROC and class prevalence.
+    """RETIRED 2026-09-03. Not a valid upper bound on F1 (see ERRATA.md).
 
-    From the relationship between AUROC and optimal F1:
-    F1 ≤ 2 * AUROC * prevalence / (AUROC + prevalence)
-
-    This is a known bound from Lipton et al. (2014).
+    Kept only so old call sites fail loudly rather than silently prune.
     """
-    if auroc <= 0.5:
-        return 2 * prevalence  # worst case: random
-    # Tighter bound: F1 ≤ 2 * PPV_max * TPR_max / (PPV_max + TPR_max)
-    # where both are bounded by AUROC
-    return min(
-        1.0, 2 * auroc * prevalence / (auroc * prevalence + (1 - auroc) * (1 - prevalence) + 1e-30)
-    )
+    raise RuntimeError("auroc_f1_bound is not a valid bound; use youden_f1_bound with the measured index")
+
+
+def max_youden_index(values: np.ndarray, actual: np.ndarray) -> float:
+    """Measured maximum Youden index max_t (TPR - FPR); O(N log N), no assumptions."""
+    values = np.asarray(values, dtype=float)
+    y = np.asarray(actual).astype(bool)
+    n_pos, n_neg = int(y.sum()), int((~y).sum())
+    if n_pos == 0 or n_neg == 0:
+        return 0.0
+    order = np.argsort(-values, kind="stable")
+    v, ys = values[order], y[order]
+    tp, fp = np.cumsum(ys), np.cumsum(~ys)
+    last = np.ones(len(v), dtype=bool)
+    last[:-1] = v[:-1] != v[1:]
+    return float(max(0.0, (tp[last] / n_pos - fp[last] / n_neg).max()))
+
+
+def youden_f1_bound(youden: float, prevalence: float, n_points: int = 200) -> float:
+    """Upper bound on thresholded F1 from the maximum Youden index J.
+
+    FPR >= TPR - J at every operating point, so F1 <= 2 t pi / (t pi + pi + (t - J)(1 - pi))
+    over t in [J, 1]. Holds for every score. This replaces the AUROC form, which held
+    only for concave ROC curves (ERRATA.md, 2026-09-03).
+    """
+    J = float(min(max(youden, 0.0), 1.0))
+    best = 0.0
+    for tpr in np.linspace(max(0.01, J), 1.0, n_points):
+        fpr = tpr - J
+        if fpr < 0 or fpr > 1:
+            continue
+        prec = tpr * prevalence / (tpr * prevalence + fpr * (1 - prevalence) + 1e-30)
+        if prec + tpr > 0:
+            best = max(best, 2 * prec * tpr / (prec + tpr))
+    return best
 
 
 def compute_auroc(values: np.ndarray, actual: np.ndarray) -> float:
@@ -205,9 +230,9 @@ def main():
                         vals = op_fn(X[:, i], X[:, j])
                         vals = np.nan_to_num(vals, nan=0, posinf=1e10, neginf=-1e10)
 
-                        # AUROC-based pruning: compute AUROC (cheap)
+                        # Youden-based pruning: sound for every score (ERRATA.md 2026-09-03)
                         auroc = compute_auroc(vals, actual)
-                        f1_bound = auroc_f1_bound(auroc, prevalence)
+                        f1_bound = youden_f1_bound(max_youden_index(vals, actual), prevalence)
 
                         if f1_bound < best_f1_pruned:
                             # Prune: AUROC bound says this can't beat current best
@@ -254,12 +279,13 @@ def main():
     log.info("\n" + "=" * 70)
     log.info("CONCLUSION")
     log.info("=" * 70)
-    log.info("The AUROC-based bound is ADMISSIBLE: it never prunes a formula")
+    log.info("The Youden-based bound is ADMISSIBLE: it never prunes a formula")
     log.info("that would have been the best. This is because:")
-    log.info("1. AUROC is a necessary condition for high F1 (low AUROC -> low F1)")
-    log.info("2. The bound function f1_bound(auroc, prevalence) is a proven")
-    log.info("   upper bound on achievable F1 given the AUROC value")
-    log.info("3. AUROC computation is O(N log N) vs O(N * thresholds) for F1 sweep")
+    log.info("1. FPR >= TPR - J at every threshold, J the measured maximum Youden index")
+    log.info("2. The bound function youden_f1_bound(J, prevalence) is therefore an")
+    log.info("   upper bound on achievable F1 for every score (the earlier AUROC")
+    log.info("   form held only for concave ROC curves; see ERRATA.md 2026-09-03)")
+    log.info("3. J is O(N log N), one sort, the same cost as AUROC")
     log.info("4. The pruning reduces expensive threshold sweeps while guaranteeing")
     log.info("   the same optimal formula is found")
 

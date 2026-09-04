@@ -90,9 +90,15 @@ def max_f1_for_auroc(auroc: float, prevalence: float, n_points: int = 1000) -> f
 
     So A = 0.5 + 0.5·(TPR* - FPR*), meaning TPR* - FPR* = 2A - 1.
 
-    This is the Youden index! For any ROC curve with AUROC = A,
-    the maximum Youden index (TPR - FPR) is bounded by 2A - 1
-    (achieved by the step function).
+    This is the Youden index. For a CONCAVE ROC curve with AUROC = A the
+    maximum Youden index (TPR - FPR) is at most 2A - 1, because a concave
+    curve lies above the two chords through its Youden point and so has
+    area at least (1 + J)/2. For a NON-concave curve the statement is false
+    (see ERRATA.md, 2026-09-03): a score that ranks 75% of positives above
+    every negative and 25% below every negative has A = 0.75 and J = 0.75.
+    This function is therefore an upper bound on F1 only for concave ROC
+    curves (monotone likelihood ratio). Use max_f1_for_youden with the
+    measured Youden index for a bound that holds for every score.
 
     Now, for a given (TPR*, FPR*) with TPR* - FPR* = 2A - 1,
     we want to maximize F1 over all valid (TPR*, FPR*) pairs.
@@ -120,8 +126,51 @@ def max_f1_for_auroc(auroc: float, prevalence: float, n_points: int = 1000) -> f
     return best_f1
 
 
+def max_youden_index(values: np.ndarray, actual: np.ndarray) -> float:
+    """Measured maximum Youden index max_t (TPR(t) - FPR(t)) of a score.
+
+    O(N log N), the same sort AUROC needs. Holds for every score; no concavity
+    assumption. Ties are handled by sweeping distinct score values.
+    """
+    values = np.asarray(values, dtype=float)
+    actual = np.asarray(actual).astype(bool)
+    n_pos = int(actual.sum())
+    n_neg = int(len(actual) - n_pos)
+    if n_pos == 0 or n_neg == 0:
+        return 0.0
+    order = np.argsort(-values, kind="stable")
+    v = values[order]
+    y = actual[order]
+    tp = np.cumsum(y)
+    fp = np.cumsum(~y)
+    # only evaluate at the last index of each run of equal scores
+    last = np.ones(len(v), dtype=bool)
+    last[:-1] = v[:-1] != v[1:]
+    j = tp[last] / n_pos - fp[last] / n_neg
+    return float(max(0.0, j.max()))
+
+
+def max_f1_for_youden(youden: float, prevalence: float, n_points: int = 200) -> float:
+    """Upper bound on thresholded F1 from the maximum Youden index J.
+
+    At any operating point FPR >= TPR - J, so F1 <= 2 t pi / (t pi + pi + (t - J)(1 - pi))
+    for t in [J, 1]. This holds for EVERY score, concave ROC curve or not, and is the
+    corrected form of the AUROC bound (ERRATA.md, 2026-09-03).
+    """
+    J = float(min(max(youden, 0.0), 1.0))
+    best = 0.0
+    for tpr in np.linspace(max(0.01, J), 1.0, n_points):
+        fpr = tpr - J
+        if fpr < 0 or fpr > 1:
+            continue
+        best = max(best, f1_at_operating_point(tpr, fpr, prevalence))
+    return best
+
+
 def prove_admissibility(alpha: float, prevalence: float) -> dict:
-    """Prove that AUROC < alpha implies F1 < F1_bound.
+    """Bound on F1 implied by AUROC < alpha, valid for concave ROC curves only.
+
+    For the general case use max_f1_for_youden with the measured Youden index.
 
     Returns the proven bound and the proof steps.
     """
