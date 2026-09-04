@@ -32,6 +32,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from symbolic_search._ops import BINARY_OPS, UNARY_OPS
+from symbolic_search._auroc_proof import max_f1_for_youden, max_youden_index
 from symbolic_search._heuristic_dag import (
     HeuristicDAG,
     H1_TargetCheck,
@@ -61,6 +62,7 @@ class RadarResult:
     target_met: bool
     pruned_monotone: int = 0
     pruned_auroc: int = 0
+    pruned_youden: int = 0
     heuristic_stats: dict = field(default_factory=dict)
 
     def summary(self) -> str:
@@ -210,6 +212,7 @@ class TheoryRadar:
         Args:
             mode: "strict" (true A*, guaranteed optimal),
                   "fast" (AUROC subtree pruning, no guarantee),
+                  "youden" (subtree pruning by the sound Youden F1 ceiling, no guarantee on descendants),
                   "auto" (strict first, fast fallback on timeout),
                   "adaptive" (funnel beam: wide shallow, narrow deep).
             f1_target: Target F1 score. 0 = find absolute best.
@@ -305,6 +308,15 @@ class TheoryRadar:
                     max_expansions,
                     auroc_prune=auroc_threshold,
                     verbose=verbose and trial == 0,
+                )
+            elif mode == "youden":
+                result = sub_radar._search(
+                    f1_target,
+                    max_depth,
+                    max_expansions,
+                    auroc_prune=None,
+                    verbose=verbose and trial == 0,
+                    youden_prune=True,
                 )
             elif mode == "adaptive":
                 result = sub_radar._adaptive_search(
@@ -651,11 +663,18 @@ class TheoryRadar:
         auroc_prune: float | None,
         verbose: bool = True,
         timeout: float | None = None,
+        youden_prune: bool = False,
     ) -> RadarResult:
-        """Core A* search with DAG heuristic."""
+        """Core A* search with DAG heuristic.
+
+        youden_prune: skip a child whose F1 ceiling from its measured Youden index
+        (sound for every score, ERRATA.md 2026-09-03) is below the best F1 found so far.
+        Like the AUROC pre-filter this prunes a subtree by a property of its root, so it
+        is a heuristic on descendants; unlike the AUROC pre-filter it never discards the
+        child itself when the child could have been the best."""
         t0 = time.time()
-        mode = "strict" if auroc_prune is None else "fast"
-        guaranteed = auroc_prune is None
+        mode = "youden" if youden_prune else ("strict" if auroc_prune is None else "fast")
+        guaranteed = auroc_prune is None and not youden_prune
 
         X, y = self.X, self.y
         d = self.d
@@ -678,6 +697,7 @@ class TheoryRadar:
         expansions = 0
         pruned_monotone = 0
         pruned_auroc = 0
+        pruned_youden = 0
         seen: set[str] = set()
 
         # Seed with leaf features
@@ -743,6 +763,9 @@ class TheoryRadar:
                         if auroc_prune is not None and ca < auroc_prune:
                             pruned_auroc += 1
                             continue
+                        if youden_prune and max_f1_for_youden(max_youden_index(cv, actual), self.prevalence) < best_f1:
+                            pruned_youden += 1
+                            continue
 
                         cf = exact_optimal_f1(cv, actual)
                         cnf = node.n_features + (1 if features[j] not in node.formula else 0)
@@ -788,6 +811,9 @@ class TheoryRadar:
                     else:
                         if auroc_prune is not None and ca < auroc_prune:
                             pruned_auroc += 1
+                            continue
+                        if youden_prune and max_f1_for_youden(max_youden_index(cv, actual), self.prevalence) < best_f1:
+                            pruned_youden += 1
                             continue
                         cf = exact_optimal_f1(cv, actual)
 
@@ -836,5 +862,6 @@ class TheoryRadar:
             target_met=best_f1 >= f1_target if f1_target > 0 else True,
             pruned_monotone=pruned_monotone,
             pruned_auroc=pruned_auroc,
+            pruned_youden=pruned_youden,
             heuristic_stats=dag.stats,
         )
