@@ -1,0 +1,607 @@
+{
+  "date": "2026-09-03",
+  "commit": "aedc053",
+  "part_a": [
+    {
+      "dataset": "Circles (2)",
+      "N": 2000,
+      "d": 2,
+      "prevalence": 0.5,
+      "pairs": 20,
+      "best_f1_exhaustive": 0.996,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 8,
+          "best_f1": 0.996,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 8,
+          "best_f1": 0.996,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 8,
+          "best_f1": 0.996,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 8,
+          "best_f1": 0.996,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 8,
+          "best_f1": 0.996,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 4,
+          "best_f1": 0.996,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 4,
+          "best_f1": 0.996,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 7,
+        "best_f1": 0.996,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 14,
+      "pairs_with_youden_above_2A_minus_1": 16,
+      "seconds": 0.10514211654663086
+    },
+    {
+      "dataset": "Moons (2)",
+      "N": 2000,
+      "d": 2,
+      "prevalence": 0.5,
+      "pairs": 20,
+      "best_f1_exhaustive": 0.833,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 20,
+          "best_f1": 0.833,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 14,
+          "best_f1": 0.833,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 13,
+          "best_f1": 0.833,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 11,
+          "best_f1": 0.833,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 4,
+          "best_f1": 0.833,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 4,
+          "best_f1": 0.833,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 2,
+          "best_f1": 0.833,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 2,
+        "best_f1": 0.833,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 3,
+      "pairs_with_youden_above_2A_minus_1": 16,
+      "seconds": 0.10411286354064941
+    },
+    {
+      "dataset": "Breast Cancer (30)",
+      "N": 569,
+      "d": 30,
+      "prevalence": 0.6274165202108963,
+      "pairs": 8700,
+      "best_f1_exhaustive": 0.9541547277936963,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 7987,
+          "best_f1": 0.9541547277936963,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 6905,
+          "best_f1": 0.9541547277936963,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 5768,
+          "best_f1": 0.9541547277936963,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 5210,
+          "best_f1": 0.9541547277936963,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 4064,
+          "best_f1": 0.9541547277936963,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 3222,
+          "best_f1": 0.9541547277936963,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 2576,
+          "best_f1": 0.9541547277936963,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 199,
+        "best_f1": 0.9541547277936963,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 812,
+      "pairs_with_youden_above_2A_minus_1": 4168,
+      "seconds": 33.9674870967865
+    },
+    {
+      "dataset": "Wine (13), class 0 vs rest",
+      "N": 178,
+      "d": 13,
+      "prevalence": 0.33146067415730335,
+      "pairs": 1560,
+      "best_f1_exhaustive": 0.9203539823008849,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 1425,
+          "best_f1": 0.9203539823008849,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 1205,
+          "best_f1": 0.9203539823008849,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 1060,
+          "best_f1": 0.9203539823008849,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 957,
+          "best_f1": 0.9203539823008849,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 740,
+          "best_f1": 0.9203539823008849,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 572,
+          "best_f1": 0.9203539823008849,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 413,
+          "best_f1": 0.9203539823008849,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 38,
+        "best_f1": 0.9203539823008849,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 412,
+      "pairs_with_youden_above_2A_minus_1": 928,
+      "seconds": 5.710047245025635
+    },
+    {
+      "dataset": "Synthetic (10)",
+      "N": 2000,
+      "d": 10,
+      "prevalence": 0.366,
+      "pairs": 900,
+      "best_f1_exhaustive": 0.9556135770234987,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 247,
+          "best_f1": 0.9556135770234987,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 136,
+          "best_f1": 0.9556135770234987,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 110,
+          "best_f1": 0.9556135770234987,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 90,
+          "best_f1": 0.9556135770234987,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 44,
+          "best_f1": 0.9556135770234987,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 36,
+          "best_f1": 0.9556135770234987,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 10,
+          "best_f1": 0.9556135770234987,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 7,
+        "best_f1": 0.9556135770234987,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 18,
+      "pairs_with_youden_above_2A_minus_1": 824,
+      "seconds": 4.013632774353027
+    },
+    {
+      "dataset": "Synthetic (20)",
+      "N": 2000,
+      "d": 20,
+      "prevalence": 0.359,
+      "pairs": 3800,
+      "best_f1_exhaustive": 0.9459815546772068,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 676,
+          "best_f1": 0.9459815546772068,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 296,
+          "best_f1": 0.9459815546772068,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 268,
+          "best_f1": 0.9459815546772068,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 172,
+          "best_f1": 0.9459815546772068,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 104,
+          "best_f1": 0.9459815546772068,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 76,
+          "best_f1": 0.9459815546772068,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 8,
+          "best_f1": 0.9459815546772068,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 8,
+        "best_f1": 0.9459815546772068,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 57,
+      "pairs_with_youden_above_2A_minus_1": 3597,
+      "seconds": 17.02440118789673
+    },
+    {
+      "dataset": "Synthetic (30)",
+      "N": 2000,
+      "d": 30,
+      "prevalence": 0.372,
+      "pairs": 8700,
+      "best_f1_exhaustive": 0.9637305699481865,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 1388,
+          "best_f1": 0.9637305699481865,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 459,
+          "best_f1": 0.9637305699481865,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 402,
+          "best_f1": 0.9637305699481865,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 256,
+          "best_f1": 0.9637305699481865,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 144,
+          "best_f1": 0.9637305699481865,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 116,
+          "best_f1": 0.9637305699481865,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 8,
+          "best_f1": 0.9637305699481865,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 8,
+        "best_f1": 0.9637305699481865,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 61,
+      "pairs_with_youden_above_2A_minus_1": 8316,
+      "seconds": 38.84405779838562
+    },
+    {
+      "dataset": "Synthetic (40)",
+      "N": 2000,
+      "d": 40,
+      "prevalence": 0.3565,
+      "pairs": 15600,
+      "best_f1_exhaustive": 0.9424983476536682,
+      "auroc_prefilter": {
+        "0.52": {
+          "evaluated": 2529,
+          "best_f1": 0.9424983476536682,
+          "admissible": true
+        },
+        "0.55": {
+          "evaluated": 614,
+          "best_f1": 0.9424983476536682,
+          "admissible": true
+        },
+        "0.58": {
+          "evaluated": 532,
+          "best_f1": 0.9424983476536682,
+          "admissible": true
+        },
+        "0.6": {
+          "evaluated": 368,
+          "best_f1": 0.9424983476536682,
+          "admissible": true
+        },
+        "0.65": {
+          "evaluated": 208,
+          "best_f1": 0.9424983476536682,
+          "admissible": true
+        },
+        "0.7": {
+          "evaluated": 156,
+          "best_f1": 0.9424983476536682,
+          "admissible": true
+        },
+        "0.75": {
+          "evaluated": 32,
+          "best_f1": 0.9424983476536682,
+          "admissible": true
+        }
+      },
+      "youden_prune": {
+        "evaluated": 8,
+        "best_f1": 0.9424983476536682,
+        "admissible": true
+      },
+      "pairs_with_f1_above_auroc_ceiling": 125,
+      "pairs_with_youden_above_2A_minus_1": 15004,
+      "seconds": 69.4756851196289
+    }
+  ],
+  "part_b": [
+    {
+      "dataset": "Circles (2)",
+      "N": 2000,
+      "d": 2,
+      "strict": {
+        "f1": 0.9964982491245623,
+        "formula": "(x1 hypot x2)",
+        "depth": 2,
+        "expansions": 1626,
+        "pruned_auroc": 0,
+        "pruned_youden": 0,
+        "pruned_monotone": 232,
+        "seconds": 7.033293008804321
+      },
+      "fast": {
+        "f1": 0.9964982491245623,
+        "formula": "(x1 hypot x2)",
+        "depth": 2,
+        "expansions": 540,
+        "pruned_auroc": 246,
+        "pruned_youden": 0,
+        "pruned_monotone": 112,
+        "seconds": 2.80472731590271
+      },
+      "youden": {
+        "f1": 0.9964982491245623,
+        "formula": "(x1 hypot x2)",
+        "depth": 2,
+        "expansions": 87,
+        "pruned_auroc": 0,
+        "pruned_youden": 363,
+        "pruned_monotone": 64,
+        "seconds": 1.2253305912017822
+      }
+    },
+    {
+      "dataset": "Moons (2)",
+      "N": 2000,
+      "d": 2,
+      "strict": {
+        "f1": 0.8926713947990542,
+        "formula": "(neg(x1) max x2)",
+        "depth": 3,
+        "expansions": 1626,
+        "pruned_auroc": 0,
+        "pruned_youden": 0,
+        "pruned_monotone": 232,
+        "seconds": 7.207369089126587
+      },
+      "fast": {
+        "f1": 0.8926713947990542,
+        "formula": "(neg(x1) max x2)",
+        "depth": 3,
+        "expansions": 1386,
+        "pruned_auroc": 72,
+        "pruned_youden": 0,
+        "pruned_monotone": 208,
+        "seconds": 6.250962257385254
+      },
+      "youden": {
+        "f1": 0.8926713947990542,
+        "formula": "(neg(x1) max x2)",
+        "depth": 3,
+        "expansions": 86,
+        "pruned_auroc": 0,
+        "pruned_youden": 420,
+        "pruned_monotone": 72,
+        "seconds": 1.3563933372497559
+      }
+    },
+    {
+      "dataset": "Synthetic (20)",
+      "N": 2000,
+      "d": 20,
+      "strict": {
+        "f1": 1.0,
+        "formula": "(x0 hypot x1)",
+        "depth": 2,
+        "expansions": 50000,
+        "pruned_auroc": 0,
+        "pruned_youden": 0,
+        "pruned_monotone": 16720,
+        "seconds": 4180.49977684021
+      },
+      "fast": {
+        "f1": 1.0,
+        "formula": "(x0 hypot x1)",
+        "depth": 2,
+        "expansions": 50000,
+        "pruned_auroc": 96577,
+        "pruned_youden": 0,
+        "pruned_monotone": 3212,
+        "seconds": 543.6122047901154
+      },
+      "youden": {
+        "f1": 1.0,
+        "formula": "(x0 hypot x1)",
+        "depth": 2,
+        "expansions": 465,
+        "pruned_auroc": 0,
+        "pruned_youden": 21603,
+        "pruned_monotone": 424,
+        "seconds": 59.33421874046326
+      }
+    },
+    {
+      "dataset": "Breast Cancer (10)",
+      "N": 569,
+      "d": 10,
+      "strict": {
+        "f1": 0.9578231292517007,
+        "formula": "((f1 min f2) + f7)",
+        "depth": 3,
+        "expansions": 50000,
+        "pruned_auroc": 0,
+        "pruned_youden": 0,
+        "pruned_monotone": 4360,
+        "seconds": 328.43746304512024
+      },
+      "fast": {
+        "f1": 0.9578231292517007,
+        "formula": "((f2 min f1) + f7)",
+        "depth": 3,
+        "expansions": 50000,
+        "pruned_auroc": 6626,
+        "pruned_youden": 0,
+        "pruned_monotone": 3916,
+        "seconds": 289.1098039150238
+      },
+      "youden": {
+        "f1": 0.9515905947441218,
+        "formula": "((f3 + f7) min f6)",
+        "depth": 3,
+        "expansions": 841,
+        "pruned_auroc": 0,
+        "pruned_youden": 9537,
+        "pruned_monotone": 384,
+        "seconds": 23.898066520690918
+      }
+    },
+    {
+      "dataset": "Diabetes (8)",
+      "N": 768,
+      "d": 8,
+      "strict": {
+        "f1": 0.6936790923824958,
+        "formula": "((d5 min d7) + d1)",
+        "depth": 3,
+        "expansions": 50000,
+        "pruned_auroc": 0,
+        "pruned_youden": 0,
+        "pruned_monotone": 2848,
+        "seconds": 189.23771619796753
+      },
+      "fast": {
+        "f1": 0.6936790923824958,
+        "formula": "((d5 min d7) + d1)",
+        "depth": 3,
+        "expansions": 46307,
+        "pruned_auroc": 7205,
+        "pruned_youden": 0,
+        "pruned_monotone": 2432,
+        "seconds": 154.5211787223816
+      },
+      "youden": {
+        "f1": 0.6920634920634922,
+        "formula": "((d1 + d7) min d5)",
+        "depth": 3,
+        "expansions": 192,
+        "pruned_auroc": 0,
+        "pruned_youden": 3688,
+        "pruned_monotone": 176,
+        "seconds": 8.911581993103027
+      }
+    }
+  ]
+}
