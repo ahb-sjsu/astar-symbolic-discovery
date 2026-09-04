@@ -13,7 +13,8 @@ Youden point and so has area at least (1 + J)/2. It fails for non-concave curves
 found by an external reviewer of the companion textbook: rank three quarters of the positives
 above every negative and the remaining quarter below every negative. AUROC is 0.75, the maximum
 Youden index is 0.75, and at prevalence one half the best thresholded F1 is 0.857, above the
-0.80 the AUROC form of the ceiling allows. The `auroc_f1_bound` formula in `run_astar_v2.py`,
+0.80 the AUROC form of the ceiling allows. The sound ceiling for that score, from J = 0.75, is
+0.889, and the score sits under it. The `auroc_f1_bound` formula in `run_astar_v2.py`,
 2Aπ/(Aπ + (1 − A)(1 − π)), is not a valid upper bound either: at prevalence 0.1 the same score
 reaches F1 0.857 against a "bound" of 0.5.
 
